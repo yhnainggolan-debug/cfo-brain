@@ -176,7 +176,9 @@ cfo-brain/
 ## Key Documents
 
 - [📐 Architecture Deep Dive](docs/architecture.md)
-- [📊 Dashboard Template Decisions](docs/dashboard-template.md)
+- [📊 Dashboard Template v1 — Board P&L](docs/dashboard-template-v1.md) ← **start here for UI**
+- [📋 Dashboard Design Decisions](docs/dashboard-template.md)
+- [🔀 Workstream Isolation](docs/workstream-isolation.md) — how to iterate without breaking things
 - [🗄️ Data Model & Schema](docs/data-model.md)
 - [🤖 Agent Design](docs/agent-design.md)
 - [📥 Ingestion Guide](docs/ingestion-guide.md)
