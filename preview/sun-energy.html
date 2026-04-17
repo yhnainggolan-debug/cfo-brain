@@ -128,7 +128,15 @@
   </div>
 </div>
 
-<!-- Entity Table -->
+<!-- Entity P&L Table -->
+<div class="grid" style="grid-template-columns:1fr;margin-top:16px">
+  <div class="table-card">
+    <div class="chart-title">P&L by Entity / Country <span id="entityPeriodLabel"></span></div>
+    <table id="entityTable"></table>
+  </div>
+</div>
+
+<!-- Consolidated P&L Table -->
 <div class="grid" style="grid-template-columns:1fr;margin-top:16px">
   <div class="table-card">
     <div class="chart-title">Consolidated P&L <span id="tablePeriodLabel"></span></div>
@@ -188,6 +196,23 @@ const D = {
   },
   // Interest breakdown (YTD proportions)
   int_project: 9686, int_emi_bond: 1370, int_sg_bond: 1522, int_pb1: 600, int_pb2: 167, int_pb3: 639,
+
+  // === ENTITY / COUNTRY MONTHLY DATA ===
+  // Revenue by entity (monthly)
+  ent: {
+    'Renewables Energy': {
+      sub: {
+        'Australia':  { rev:[1340,1175,1024,674,629,586,659,734,815,1075,847], cogs:[-509,-414,-456,-380,-493,-627,-588,-534,-572,-545,-619], depr:[-291,-282,-291,-325,-337,-363,-371,-342,-325,-307,-361], ga:[-51,-51,-52,-52,-52,-52,-52,-52,-52,-52,-52], fc:[-285,-285,-286,-286,-285,-286,-285,-286,-286,-285,-286] },
+        'Indonesia':  { rev:[723,584,677,687,1330,1670,1288,986,1635,1324,949], cogs:[-190,-123,-253,-198,-727,-1079,-634,-264,-661,-205,-288], depr:[-233,-221,-234,-275,-279,-288,-301,-320,-350,-338,-362], ga:[-395,-395,-395,-395,-395,-395,-395,-395,-395,-395,-395], fc:[-635,-635,-636,-636,-635,-636,-635,-636,-636,-635,-636] },
+        'Thailand':   { rev:[345,304,545,322,307,296,268,322,304,291,272], cogs:[-27,-32,-53,-53,-43,-45,-41,-41,-41,-48,-47], depr:[-152,-152,-157,-160,-158,-157,-157,-157,-157,-157,-157], ga:[-39,-39,-39,-39,-39,-39,-39,-39,-39,-39,-39], fc:[-19,-19,-19,-19,-19,-19,-19,-19,-19,-19,-19] },
+        'Vietnam':    { rev:[152,157,170,174,171,143,145,183,128,153,149], cogs:[-14,-17,-23,-27,-26,-24,-25,-28,-25,-28,-30], depr:[-62,-63,-67,-70,-69,-69,-69,-69,-69,-69,-69], ga:[-42,-42,-42,-42,-42,-42,-42,-42,-42,-42,-42], fc:[-60,-60,-61,-61,-60,-61,-60,-61,-61,-60,-61] },
+        'Singapore (HQ)': { rev:[0,0,0,0,0,0,0,0,0,0,0], cogs:[0,0,0,0,0,0,0,0,0,0,0], depr:[0,0,0,0,0,0,0,0,0,0,0], ga:[-99,-99,-99,-99,-99,-99,-99,-99,-99,-99,-99], fc:[-398,-398,-399,-399,-398,-399,-398,-399,-399,-398,-399] },
+      }
+    },
+    'Nira':     { rev:[104,104,104,104,104,104,104,104,104,104,104], cogs:[-31,-31,-31,-31,-31,-31,-31,-31,-31,-31,-31], depr:[-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9], ga:[-113,-113,-113,-113,-113,-113,-113,-113,-113,-113,-113], fc:[-5,-5,-5,-5,-5,-5,-6,-6,-6,-6,-6] },
+    'Terra':    { rev:[233,233,233,233,233,233,233,233,233,233,233], cogs:[-165,-165,-165,-165,-165,-165,-165,-165,-165,-165,-165], depr:[-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10], ga:[-216,-216,-216,-216,-216,-216,-216,-216,-216,-216,-216], fc:[-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10] },
+    'Mobility': { rev:[4,4,4,4,4,4,4,4,4,4,4], cogs:[-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1], depr:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], ga:[-6,-6,-6,-6,-6,-6,-6,-6,-6,-6,-6], fc:[-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1] },
+  },
 };
 
 // Compute totals
@@ -275,7 +300,9 @@ function update() {
   document.getElementById('pnlPeriodLabel').textContent = label+', USD \'000';
 
   updateCharts(f,t);
+  updateEntityTable(f,t);
   updateTable(f,t);
+  document.getElementById('entityPeriodLabel').textContent = label+', USD \'000';
 }
 
 function updateCharts(f,t) {
@@ -388,6 +415,47 @@ function updateTable(f,t) {
       <tr><td>Tax</td>${r(tax)}<td class="r"></td></tr>
       <tr class="row-total"><td><strong>Net Income</strong></td>${r(ni)}${rp(niM)}</tr>
     </tbody>`;
+}
+
+function updateEntityTable(f,t) {
+  const s = (arr) => arr.slice(f,t+1).reduce((a,b)=>a+b,0);
+  let html = `<thead><tr><th>Entity</th><th class="r">Revenue</th><th class="r">COGS</th><th class="r">Gross Profit</th><th class="r">GP %</th><th class="r">G&A</th><th class="r">EBITDA</th><th class="r">EBITDA %</th><th class="r">Finance Cost</th><th class="r">Net Income</th></tr></thead><tbody>`;
+  const r = (v) => `<td class="r ${v<0?'neg':''}">${fmt(v)}</td>`;
+  let totRev=0,totCogs=0,totDepr=0,totGA=0,totFC=0;
+
+  // Renewables Energy with sub-entities
+  const re = D.ent['Renewables Energy'];
+  let reRev=0,reCogs=0,reDepr=0,reGA=0,reFC=0;
+  for (const [name, d] of Object.entries(re.sub)) {
+    const rv=s(d.rev),cg=s(d.cogs),dp=s(d.depr),ga=s(d.ga),fc=s(d.fc);
+    reRev+=rv; reCogs+=cg+dp; reDepr+=dp; reGA+=ga; reFC+=fc;
+  }
+  const reGP=reRev+reCogs; const reEBITDA=reGP+reGA+Math.abs(s(Object.values(re.sub).map(d=>d.depr).reduce((a,b)=>a.map((v,i)=>v+b[i]))));
+  // Simpler: calculate from components
+  let reEbitda2 = 0;
+  for (const d of Object.values(re.sub)) { reEbitda2 += s(d.rev)+s(d.cogs)+s(d.ga)+Math.abs(s(d.depr)); }
+  html += `<tr><td><strong>Renewables Energy</strong></td>${r(reRev)}${r(reCogs)}${r(reGP)}<td class="r">${reRev?((reGP/reRev)*100).toFixed(1)+'%':'—'}</td>${r(reGA)}${r(reEbitda2)}<td class="r">${reRev?((reEbitda2/reRev)*100).toFixed(1)+'%':'—'}</td>${r(reFC)}${r(reRev+reCogs+reGA+reFC)}</tr>`;
+
+  for (const [name, d] of Object.entries(re.sub)) {
+    const rv=s(d.rev),cg=s(d.cogs),dp=s(d.depr),ga=s(d.ga),fc=s(d.fc);
+    const gp=rv+cg+dp, ebitda=rv+cg+ga+Math.abs(dp), ni=rv+cg+dp+ga+fc;
+    html += `<tr><td style="padding-left:24px;color:var(--dim)">↳ ${name}</td>${r(rv)}${r(cg+dp)}${r(gp)}<td class="r">${rv?((gp/rv)*100).toFixed(1)+'%':'—'}</td>${r(ga)}${r(ebitda)}<td class="r">${rv?((ebitda/rv)*100).toFixed(1)+'%':'—'}</td>${r(fc)}${r(ni)}</tr>`;
+  }
+
+  // Other entities
+  let grpRev=reRev,grpCogs=reCogs,grpGA=reGA,grpFC=reFC,grpEbitda=reEbitda2,grpNI=reRev+reCogs+reGA+reFC;
+  for (const ename of ['Nira','Terra','Mobility']) {
+    const d = D.ent[ename];
+    const rv=s(d.rev),cg=s(d.cogs),dp=s(d.depr),ga=s(d.ga),fc=s(d.fc);
+    const gp=rv+cg+dp, ebitda=rv+cg+ga+Math.abs(dp), ni=rv+cg+dp+ga+fc;
+    grpRev+=rv; grpCogs+=cg+dp; grpGA+=ga; grpFC+=fc; grpEbitda+=ebitda; grpNI+=ni;
+    html += `<tr style="border-top:1px solid var(--card-border)"><td><strong>${ename}</strong></td>${r(rv)}${r(cg+dp)}${r(gp)}<td class="r">${rv?((gp/rv)*100).toFixed(1)+'%':'—'}</td>${r(ga)}${r(ebitda)}<td class="r">${rv?((ebitda/rv)*100).toFixed(1)+'%':'—'}</td>${r(fc)}${r(ni)}</tr>`;
+  }
+
+  const grpGP=grpRev+grpCogs;
+  html += `<tr class="row-total"><td><strong>GROUP CONSOLIDATED</strong></td>${r(grpRev)}${r(grpCogs)}${r(grpGP)}<td class="r">${grpRev?((grpGP/grpRev)*100).toFixed(1)+'%':'—'}</td>${r(grpGA)}${r(grpEbitda)}<td class="r">${grpRev?((grpEbitda/grpRev)*100).toFixed(1)+'%':'—'}</td>${r(grpFC)}${r(grpNI)}</tr>`;
+  html += '</tbody>';
+  document.getElementById('entityTable').innerHTML = html;
 }
 
 // Init
