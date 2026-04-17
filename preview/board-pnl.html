@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FS Pillar & Others Pillar — Mar 2026</title>
+<style>
+  :root {
+    --green-dark: #1b6b2e;
+    --green-dark-bg: #c6efce;
+    --green-light: #2e7d32;
+    --green-light-bg: #e2f0d9;
+    --red-light: #c62828;
+    --red-light-bg: #fce4ec;
+    --red-dark: #b71c1c;
+    --red-dark-bg: #f8b4b4;
+    --header-bg: #8b1a1a;
+    --header-text: #fff;
+    --border: #d0d0d0;
+    --total-bg: #f0f0f0;
+    --pillar-total-bg: #e8e8e8;
+    --font: 'Segoe UI', 'Inter', -apple-system, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: #fff;
+    color: #1a1a1a;
+    padding: 32px 40px;
+    font-size: 13px;
+    min-width: 1600px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  .page-header-right {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .legend {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+
+  .legend-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a3a6b;
+    letter-spacing: 1px;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 2px;
+  }
+
+  /* Navigation dots */
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+    margin: 16px 0 12px;
+  }
+  .nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #333;
+  }
+
+  /* Summary KPI bar */
+  .kpi-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    margin-bottom: 4px;
+    border-bottom: 2px solid var(--header-bg);
+  }
+
+  .kpi-panel {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 8px 0;
+  }
+
+  .kpi-item {
+    text-align: center;
+  }
+
+  .kpi-label {
+    font-size: 11px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .kpi-value {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .kpi-positive { color: var(--green-dark); }
+  .kpi-negative { color: var(--red-dark); }
+
+  /* Main table */
+  .pnl-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 24px;
+  }
+
+  .pnl-table th, .pnl-table td {
+    padding: 5px 8px;
+    text-align: right;
+    font-size: 12px;
+    border-bottom: 1px solid #e8e8e8;
+    white-space: nowrap;
+  }
+
+  .pnl-table .col-name {
+    text-align: left;
+    font-weight: 500;
+    min-width: 140px;
+    width: 140px;
+    padding-left: 8px;
+  }
+
+  /* Panel headers */
+  .panel-header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    text-align: center !important;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .col-header {
+    background: #f5f5f5;
+    font-weight: 600;
+    font-size: 10px;
+    color: #555;
+    padding: 5px 8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .currency-label {
+    font-size: 10px;
+    color: #888;
+    font-weight: 600;
+    text-align: left !important;
+    padding-left: 8px;
+    background: #f5f5f5;
+    border-bottom: 2px solid var(--border);
+  }
+
+  /* Panel separator */
+  .panel-sep {
+    border-left: 2px solid var(--header-bg);
+  }
+
+  /* Achievement colors */
+  .achv-great {
+    background: var(--green-dark-bg);
+    color: var(--green-dark);
+    font-weight: 700;
+  }
+  .achv-good {
+    background: var(--green-light-bg);
+    color: var(--green-light);
+    font-weight: 700;
+  }
+  .achv-warn {
+    background: var(--red-light-bg);
+    color: var(--red-light);
+    font-weight: 700;
+  }
+  .achv-bad {
+    background: var(--red-dark-bg);
+    color: var(--red-dark);
+    font-weight: 700;
+  }
+
+  /* Negative values */
+  .neg {
+    color: var(--red-dark);
+  }
+
+  /* Total rows */
+  .row-total td {
+    font-weight: 700;
+    border-top: 2px solid #999;
+    border-bottom: 2px solid #999;
+    background: var(--total-bg);
+  }
+
+  .row-pillar-total td {
+    font-weight: 700;
+    font-style: italic;
+    background: var(--pillar-total-bg);
+    border-top: 2px solid #666;
+    border-bottom: 2px solid #666;
+  }
+
+  /* Group separator */
+  .group-spacer td {
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+  }
+
+  .group-label {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+    padding-left: 8px;
+  }
+
+  /* Alternating rows */
+  .pnl-table tbody tr:nth-child(even):not(.row-total):not(.row-pillar-total):not(.group-spacer) td {
+    background: #fafafa;
+  }
+
+  /* Print styles */
+  @media print {
+    body { padding: 16px; font-size: 11px; }
+    .pnl-table th, .pnl-table td { font-size: 10px; padding: 3px 4px; }
+  }
+
+  /* Period selector (interactive element) */
+  .controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .period-select {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font);
+    font-size: 13px;
+    background: #fff;
+  }
+
+  .btn {
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .btn:hover { background: #f5f5f5; }
+  .btn-export { border-color: var(--header-bg); color: var(--header-bg); }
+
+  .watermark {
+    text-align: center;
+    color: #ccc;
+    font-size: 10px;
+    margin-top: 24px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <div class="page-title">FS Pillar & Others Pillar — Mar 2026</div>
+    <div class="nav-dots">
+      <div class="nav-dot"></div>
+      <div class="nav-dot"></div>
+      <div class="nav-dot"></div>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <div class="legend">
+      <div class="legend-title">P&L Achievement</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--green-dark-bg)"></div> Achieved &gt; 110% target</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--green-light-bg)"></div> Achieved between 100% – 110% target</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--red-light-bg)"></div> Achieved between 90% – 100% target</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--red-dark-bg)"></div> Achieved &lt; 90% below target</div>
+    </div>
+    <div>
+      <div class="logo">STAR CAPITAL</div>
+      <div class="logo-sub">GROUP</div>
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <select class="period-select">
+    <option>March 2026</option>
+    <option>February 2026</option>
+    <option>January 2026</option>
+    <option>December 2025</option>
+  </select>
+  <select class="period-select">
+    <option>FS Pillar & Others</option>
+    <option>Mining Pillar</option>
+    <option>Digital Pillar</option>
+  </select>
+  <button class="btn btn-export" onclick="window.print()">📥 Export PDF</button>
+</div>
+
+<!-- Summary KPI Bar -->
+<div class="kpi-bar">
+  <div class="kpi-panel">
+    <div class="kpi-item">
+      <div class="kpi-label">YoY Growth</div>
+      <div class="kpi-value kpi-positive">11%</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">YTD Achv.</div>
+      <div class="kpi-value kpi-negative">82%</div>
+    </div>
+  </div>
+  <div class="kpi-panel">
+    <div class="kpi-item">
+      <div class="kpi-label">YoY Growth</div>
+      <div class="kpi-value kpi-negative">-23%</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">YTD Achv.</div>
+      <div class="kpi-value kpi-great" style="color:var(--green-dark)">130%</div>
+    </div>
+  </div>
+  <div class="kpi-panel">
+    <div class="kpi-item">
+      <div class="kpi-label">YoY Growth</div>
+      <div class="kpi-value kpi-negative">-204%</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">YTD Achv.</div>
+      <div class="kpi-value kpi-negative">-70%</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main P&L Table — Group 1: ALDIRA -->
+<table class="pnl-table">
+  <thead>
+    <tr>
+      <th class="col-name"></th>
+      <th class="panel-header" colspan="6">Revenue</th>
+      <th class="panel-header panel-sep" colspan="6">EBITDA</th>
+      <th class="panel-header panel-sep" colspan="6">PBT</th>
+    </tr>
+    <tr>
+      <td class="currency-label">USD'000</td>
+      <th class="col-header">MTD<br>Actual</th>
+      <th class="col-header">LY<br>YTD</th>
+      <th class="col-header">YTD<br>Actual</th>
+      <th class="col-header">YTD<br>Budget</th>
+      <th class="col-header">FY<br>Budget</th>
+      <th class="col-header">%<br>Achvmt</th>
+      <th class="col-header panel-sep">MTD<br>Actual</th>
+      <th class="col-header">LY<br>YTD</th>
+      <th class="col-header">YTD<br>Actual</th>
+      <th class="col-header">YTD<br>Budget</th>
+      <th class="col-header">FY<br>Budget</th>
+      <th class="col-header">%<br>Achvmt</th>
+      <th class="col-header panel-sep">MTD<br>Actual</th>
+      <th class="col-header">LY<br>YTD</th>
+      <th class="col-header">YTD<br>Actual</th>
+      <th class="col-header">YTD<br>Budget</th>
+      <th class="col-header">FY<br>Budget</th>
+      <th class="col-header">%<br>Achvmt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- ALDIRA -->
+    <tr>
+      <td class="col-name">ALDIRA</td>
+      <td>409</td><td>2,153</td><td>884</td><td>2,399</td><td>7,488</td><td class="achv-bad">12%</td>
+      <td class="panel-sep">162</td><td class="neg">(380)</td><td>196</td><td>1,029</td><td></td><td class="achv-bad">-37%</td>
+      <td class="panel-sep neg">(2,774)</td><td class="neg">(351)</td><td class="neg">(2,095)</td><td>611</td><td>2,690</td><td class="achv-bad">-78%</td>
+    </tr>
+    <!-- ALDIRA Holding -->
+    <tr>
+      <td class="col-name">ALDIRA Holding</td>
+      <td>0</td><td>976</td><td>0</td><td>745</td><td>7,488</td><td>N/A</td>
+      <td class="panel-sep neg">(305)</td><td>916</td><td class="neg">(673)</td><td>21</td><td>1,029</td><td class="achv-bad">-65%</td>
+      <td class="panel-sep neg">(305)</td><td>915</td><td class="neg">(740)</td><td>21</td><td>2,690</td><td class="achv-bad">-28%</td>
+    </tr>
+    <!-- STARAM -->
+    <tr>
+      <td class="col-name">STARAM</td>
+      <td>1,166</td><td>2,014</td><td>3,508</td><td>3,265</td><td>16,253</td><td class="achv-good">22%</td>
+      <td class="panel-sep">225</td><td>53</td><td>573</td><td>69</td><td>2,093</td><td class="achv-bad">27%</td>
+      <td class="panel-sep">173</td><td class="neg">(156)</td><td>540</td><td>80</td><td>2,086</td><td class="achv-great">26%</td>
+    </tr>
+    <!-- STARLIFE -->
+    <tr>
+      <td class="col-name">STARLIFE</td>
+      <td>693</td><td>1,525</td><td>2,107</td><td>2,005</td><td>9,887</td><td class="achv-good">21%</td>
+      <td class="panel-sep">53</td><td>314</td><td>573</td><td>469</td><td>3,127</td><td class="achv-good">18%</td>
+      <td class="panel-sep neg">(267)</td><td>318</td><td>68</td><td>474</td><td>3,115</td><td class="achv-bad">2%</td>
+    </tr>
+    <!-- KRI -->
+    <tr>
+      <td class="col-name">KRI</td>
+      <td>100</td><td>160</td><td>204</td><td>254</td><td>1,127</td><td class="achv-warn">18%</td>
+      <td class="panel-sep">14</td><td class="neg">(88)</td><td class="neg">(21)</td><td>0</td><td>100</td><td class="achv-bad">-21%</td>
+      <td class="panel-sep">15</td><td class="neg">(89)</td><td class="neg">(18)</td><td class="neg">(0)</td><td>99</td><td class="achv-bad">-19%</td>
+    </tr>
+    <!-- SIGU -->
+    <tr>
+      <td class="col-name">SIGU</td>
+      <td>40</td><td>123</td><td>122</td><td>149</td><td>623</td><td class="achv-warn">20%</td>
+      <td class="panel-sep neg">(16)</td><td>8</td><td>5</td><td>19</td><td>61</td><td class="achv-bad">9%</td>
+      <td class="panel-sep neg">(7)</td><td>22</td><td>27</td><td>36</td><td>149</td><td class="achv-warn">18%</td>
+    </tr>
+    <!-- STARWEALTH -->
+    <tr>
+      <td class="col-name">STARWEALTH</td>
+      <td>24</td><td>0</td><td>74</td><td>89</td><td>550</td><td class="achv-warn">13%</td>
+      <td class="panel-sep neg">(8)</td><td>0</td><td>2</td><td class="neg">(34)</td><td>28</td><td class="achv-bad">6%</td>
+      <td class="panel-sep neg">(8)</td><td></td><td class="neg">(1)</td><td class="neg">(37)</td><td>17</td><td class="achv-bad">-6%</td>
+    </tr>
+    <!-- STARHOUSE CAPITAL -->
+    <tr>
+      <td class="col-name">STARHOUSE CAPITAL</td>
+      <td>294</td><td>505</td><td>882</td><td>950</td><td>3,800</td><td class="achv-warn">23%</td>
+      <td class="panel-sep">273</td><td>354</td><td>818</td><td>200</td><td>800</td><td class="achv-great">102%</td>
+      <td class="panel-sep">261</td><td>320</td><td>784</td><td>200</td><td>800</td><td class="achv-great">156%</td>
+    </tr>
+    <!-- Nanjing -->
+    <tr>
+      <td class="col-name">Nanjing</td>
+      <td>2</td><td>0</td><td>472</td><td>182</td><td>726</td><td class="achv-great">65%</td>
+      <td class="panel-sep neg">(14)</td><td>0</td><td>420</td><td>69</td><td>270</td><td class="achv-great">156%</td>
+      <td class="panel-sep neg">(14)</td><td></td><td>420</td><td>69</td><td>270</td><td class="achv-great">156%</td>
+    </tr>
+    <!-- Group Total -->
+    <tr class="row-total">
+      <td class="col-name">Total</td>
+      <td>2,728</td><td>7,457</td><td>8,252</td><td>10,038</td><td>47,944</td><td class="achv-bad">17%</td>
+      <td class="panel-sep">76</td><td>1,718</td><td>1,317</td><td>1,011</td><td>8,537</td><td class="achv-good">15%</td>
+      <td class="panel-sep neg">(2,867)</td><td>980</td><td class="neg">(1,015)</td><td>1,454</td><td>11,915</td><td class="achv-bad">-9%</td>
+    </tr>
+    <!-- Pillar Total -->
+    <tr class="row-pillar-total">
+      <td class="col-name" style="font-style:italic">ALDIRA TOTAL</td>
+      <td>409</td><td>3,129</td><td>884</td><td>3,144</td><td>10,468</td><td class="achv-bad">8%</td>
+      <td class="panel-sep neg">(451)</td><td>1,078</td><td class="neg">(1,053)</td><td>217</td><td>1,114</td><td class="achv-bad">-95%</td>
+      <td class="panel-sep neg">(3,079)</td><td>565</td><td class="neg">(2,835)</td><td>632</td><td>2,774</td><td class="achv-bad">-102%</td>
+    </tr>
+
+    <!-- Spacer -->
+    <tr class="group-spacer"><td colspan="19"></td></tr>
+
+  </tbody>
+</table>
+
+<!-- Group 2: PRODIGI / KANCIL -->
+<table class="pnl-table">
+  <thead>
+    <tr>
+      <th class="col-name"></th>
+      <th class="panel-header" colspan="6">Revenue</th>
+      <th class="panel-header panel-sep" colspan="6">EBITDA</th>
+      <th class="panel-header panel-sep" colspan="6">PBT</th>
+    </tr>
+    <tr>
+      <td class="currency-label">USD'000</td>
+      <th class="col-header">MTD<br>Actual</th>
+      <th class="col-header">LY<br>YTD</th>
+      <th class="col-header">YTD<br>Actual</th>
+      <th class="col-header">YTD<br>Budget</th>
+      <th class="col-header">FY<br>Budget</th>
+      <th class="col-header">%<br>Achvmt</th>
+      <th class="col-header panel-sep">MTD<br>Actual</th>
+      <th class="col-header">LY<br>YTD</th>
+      <th class="col-header">YTD<br>Actual</th>
+      <th class="col-header">YTD<br>Budget</th>
+      <th class="col-header">FY<br>Budget</th>
+      <th class="col-header">%<br>Achvmt</th>
+      <th class="col-header panel-sep">MTD<br>Actual</th>
+      <th class="col-header">LY<br>YTD</th>
+      <th class="col-header">YTD<br>Actual</th>
+      <th class="col-header">YTD<br>Budget</th>
+      <th class="col-header">FY<br>Budget</th>
+      <th class="col-header">%<br>Achvmt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- PRODIGI -->
+    <tr>
+      <td class="col-name">PRODIGI</td>
+      <td>127</td><td>541</td><td>297</td><td>1,775</td><td>7,856</td><td class="achv-bad">4%</td>
+      <td class="panel-sep">34</td><td class="neg">(317)</td><td>48</td><td>100</td><td>472</td><td class="achv-bad">9%</td>
+      <td class="panel-sep">3</td><td class="neg">(330)</td><td class="neg">(40)</td><td>18</td><td>104</td><td class="achv-bad">-38%</td>
+    </tr>
+    <!-- KANCIL -->
+    <tr>
+      <td class="col-name">KANCIL</td>
+      <td>15</td><td>42</td><td>46</td><td>77</td><td>306</td><td class="achv-warn">15%</td>
+      <td class="panel-sep neg">(9)</td><td class="neg">(199)</td><td class="neg">(38)</td><td class="neg">(57)</td><td>2,093</td><td class="achv-bad">-2%</td>
+      <td class="panel-sep neg">(1)</td><td class="neg">(206)</td><td class="neg">(31)</td><td class="neg">(12)</td><td>2,086</td><td class="achv-bad">-21%</td>
+    </tr>
+    <!-- Group Total -->
+    <tr class="row-total">
+      <td class="col-name">Total</td>
+      <td>142</td><td>583</td><td>343</td><td>1,852</td><td>8,162</td><td class="achv-bad">4%</td>
+      <td class="panel-sep">25</td><td class="neg">(517)</td><td>6</td><td>44</td><td>2,565</td><td class="achv-bad">0%</td>
+      <td class="panel-sep">2</td><td class="neg">(536)</td><td class="neg">(71)</td><td>6</td><td>2,190</td><td class="achv-bad">-3%</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="watermark">CFO BRAIN — Generated 2026-04-17 • Data as of Mar 2026 close</div>
+
+</body>
+</html>
