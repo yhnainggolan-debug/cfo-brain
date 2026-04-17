@@ -6,99 +6,45 @@
 <title>SUN Energy — CFO Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #0f1117;
-    --card: #1a1d27;
-    --card-border: #2a2d3a;
-    --text: #e4e4e7;
-    --text-dim: #71717a;
-    --green: #22c55e;
-    --red: #ef4444;
-    --blue: #3b82f6;
-    --purple: #a855f7;
-    --orange: #f97316;
-    --cyan: #06b6d4;
-    --yellow: #eab308;
-    --pink: #ec4899;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  :root { --bg:#0f1117;--card:#1a1d27;--card-border:#2a2d3a;--text:#e4e4e7;--dim:#71717a;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7;--orange:#f97316;--cyan:#06b6d4;--yellow:#eab308;--pink:#ec4899; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  .header{padding:24px 32px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border)}
+  .header h1{font-size:24px;font-weight:700} .header h1 span{color:var(--yellow)}
+  .header-sub{color:var(--dim);font-size:13px;margin-top:4px}
+  .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+  .badge-green{background:rgba(34,197,94,.15);color:var(--green)} .badge-red{background:rgba(239,68,68,.15);color:var(--red)}
 
-  .header {
-    padding: 24px 32px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--card-border);
-  }
-  .header h1 { font-size: 24px; font-weight: 700; }
-  .header h1 span { color: var(--yellow); }
-  .header-sub { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
-  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .controls{display:flex;gap:12px;padding:16px 32px;align-items:center;flex-wrap:wrap}
+  .ctrl-group{display:flex;align-items:center;gap:6px}
+  .ctrl-label{font-size:11px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  select,.btn-toggle{padding:6px 14px;border:1px solid var(--card-border);border-radius:8px;background:var(--card);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer}
+  select:focus,.btn-toggle:focus{outline:none;border-color:var(--blue)}
+  .btn-toggle{font-weight:600} .btn-toggle.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn-toggle:hover:not(.active){background:#252836}
+  .period-display{font-size:13px;color:var(--yellow);font-weight:600;margin-left:auto}
 
-  .kpi-bar {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 16px;
-    padding: 20px 32px;
-  }
-  .kpi-card {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 16px 20px;
-  }
-  .kpi-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-  .kpi-value { font-size: 24px; font-weight: 700; margin-top: 4px; }
-  .kpi-sub { font-size: 12px; margin-top: 4px; }
-  .kpi-green { color: var(--green); }
-  .kpi-red { color: var(--red); }
+  .kpi-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;padding:12px 32px 20px}
+  .kpi-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px 18px}
+  .kpi-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .kpi-value{font-size:22px;font-weight:700;margin-top:4px}
+  .kpi-sub{font-size:12px;margin-top:4px}
+  .kpi-green{color:var(--green)} .kpi-red{color:var(--red)}
 
-  .grid {
-    display: grid;
-    gap: 16px;
-    padding: 0 32px 32px;
-  }
-  .grid-2 { grid-template-columns: 1fr 1fr; }
-  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid{display:grid;gap:16px;padding:0 32px 16px} .grid-2{grid-template-columns:1fr 1fr} .grid-3{grid-template-columns:1fr 1fr 1fr}
+  .chart-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:20px 24px}
+  .chart-title{font-size:14px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .chart-title span{color:var(--dim);font-size:12px;font-weight:400}
 
-  .chart-card {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 20px 24px;
-  }
-  .chart-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .chart-title span { color: var(--text-dim); font-size: 12px; font-weight: 400; }
-
-  .table-card {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    overflow-x: auto;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th { text-align: left; padding: 8px 10px; color: var(--text-dim); font-weight: 600; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }
-  td { padding: 8px 10px; border-bottom: 1px solid rgba(42,45,58,0.5); }
-  th.r, td.r { text-align: right; }
-  tr:hover td { background: rgba(59,130,246,0.05); }
-  .row-total td { font-weight: 700; border-top: 2px solid var(--card-border); background: rgba(255,255,255,0.02); }
-  .neg { color: var(--red); }
-  .pos { color: var(--green); }
-
-  .watermark { text-align: center; padding: 24px; color: var(--text-dim); font-size: 11px; letter-spacing: 1px; }
-
-  canvas { max-height: 280px; }
+  .table-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:20px 24px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;padding:8px 10px;color:var(--dim);font-weight:600;font-size:11px;text-transform:uppercase;border-bottom:1px solid var(--card-border)}
+  td{padding:7px 10px;border-bottom:1px solid rgba(42,45,58,.5)}
+  th.r,td.r{text-align:right} tr:hover td{background:rgba(59,130,246,.05)}
+  .row-total td{font-weight:700;border-top:2px solid var(--card-border);background:rgba(255,255,255,.02)}
+  .neg{color:var(--red)} .pos{color:var(--green)}
+  .watermark{text-align:center;padding:24px;color:var(--dim);font-size:11px;letter-spacing:1px}
+  canvas{max-height:280px}
 </style>
 </head>
 <body>
@@ -106,49 +52,43 @@
 <div class="header">
   <div>
     <h1><span>☀️</span> SUN Energy Group</h1>
-    <div class="header-sub">Consolidated P&L Dashboard — YTD November 2025 · USD '000</div>
+    <div class="header-sub">Consolidated P&L Dashboard · USD '000</div>
   </div>
   <div style="text-align:right">
-    <div class="badge badge-red">EBITDA vs LE: -13%</div>
-    <div class="header-sub" style="margin-top:6px">Data through Nov 2025</div>
+    <div id="headerBadge" class="badge badge-red"></div>
+    <div class="header-sub" style="margin-top:6px">Source: Sun_Data_sample_Mapping.xlsx</div>
   </div>
+</div>
+
+<!-- Time Controls -->
+<div class="controls">
+  <div class="ctrl-group">
+    <span class="ctrl-label">View:</span>
+    <button class="btn-toggle active" data-mode="ytd" onclick="setMode('ytd',this)">YTD</button>
+    <button class="btn-toggle" data-mode="range" onclick="setMode('range',this)">Custom Range</button>
+    <button class="btn-toggle" data-mode="mtd" onclick="setMode('mtd',this)">Single Month</button>
+  </div>
+  <div class="ctrl-group" id="rangeControls" style="display:none">
+    <span class="ctrl-label">From:</span>
+    <select id="fromMonth"></select>
+    <span class="ctrl-label">To:</span>
+    <select id="toMonth"></select>
+  </div>
+  <div class="ctrl-group" id="ytdControls">
+    <span class="ctrl-label">Through:</span>
+    <select id="ytdMonth"></select>
+  </div>
+  <div class="ctrl-group" id="mtdControls" style="display:none">
+    <span class="ctrl-label">Month:</span>
+    <select id="singleMonth"></select>
+  </div>
+  <div class="period-display" id="periodLabel">YTD through November 2025</div>
 </div>
 
 <!-- KPI Cards -->
-<div class="kpi-bar">
-  <div class="kpi-card">
-    <div class="kpi-label">Revenue YTD</div>
-    <div class="kpi-value">30,458</div>
-    <div class="kpi-sub kpi-green">▲ 2.7% YoY</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">EBITDA YTD</div>
-    <div class="kpi-value">10,202</div>
-    <div class="kpi-sub kpi-red">▼ 16.1% YoY</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">EBITDA Margin</div>
-    <div class="kpi-value">33.5%</div>
-    <div class="kpi-sub kpi-red">vs 41.0% LY</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Gross Margin</div>
-    <div class="kpi-value">28.7%</div>
-    <div class="kpi-sub kpi-red">vs 34.8% LY</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Net Income YTD</div>
-    <div class="kpi-value neg" style="font-size:22px">(17,737)</div>
-    <div class="kpi-sub kpi-red">vs (17,072) LY</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Interest Expense YTD</div>
-    <div class="kpi-value neg" style="font-size:22px">(15,597)</div>
-    <div class="kpi-sub kpi-green">▼ 27% vs LY</div>
-  </div>
-</div>
+<div class="kpi-bar" id="kpiBar"></div>
 
-<!-- Row 1: Revenue Trend + Revenue by Country -->
+<!-- Charts Row 1 -->
 <div class="grid grid-2">
   <div class="chart-card">
     <div class="chart-title">Monthly Revenue by Country <span>USD '000</span></div>
@@ -160,432 +100,299 @@
   </div>
 </div>
 
-<!-- Row 2: EBITDA + Margin Trend -->
+<!-- Charts Row 2 -->
 <div class="grid grid-2" style="margin-top:16px">
   <div class="chart-card">
-    <div class="chart-title">EBITDA by Entity <span>YTD Nov-25, USD '000</span></div>
-    <canvas id="ebitdaByEntity"></canvas>
-  </div>
-  <div class="chart-card">
-    <div class="chart-title">Gross Margin by Country <span>YTD Nov-25</span></div>
-    <canvas id="marginByCountry"></canvas>
-  </div>
-</div>
-
-<!-- Row 3: P&L Waterfall + Cost Breakdown -->
-<div class="grid grid-2" style="margin-top:16px">
-  <div class="chart-card">
-    <div class="chart-title">P&L Waterfall — Group Consolidated <span>YTD Nov-25, USD '000</span></div>
+    <div class="chart-title">P&L Summary <span id="pnlPeriodLabel">USD '000</span></div>
     <canvas id="pnlWaterfall"></canvas>
   </div>
   <div class="chart-card">
-    <div class="chart-title">G&A Breakdown <span>YTD Nov-25, USD '000</span></div>
+    <div class="chart-title">EBITDA & Margin Trend <span>Monthly, USD '000</span></div>
+    <canvas id="ebitdaTrend"></canvas>
+  </div>
+</div>
+
+<!-- Charts Row 3 -->
+<div class="grid grid-3" style="margin-top:16px">
+  <div class="chart-card">
+    <div class="chart-title">G&A Breakdown <span>USD '000</span></div>
     <canvas id="gaBreakdown"></canvas>
   </div>
-</div>
-
-<!-- Row 4: Entity P&L Summary Table -->
-<div class="grid" style="grid-template-columns:1fr; margin-top:16px">
-  <div class="table-card">
-    <div class="chart-title">Entity P&L Summary <span>YTD November 2025, USD '000</span></div>
-    <table>
-      <thead>
-        <tr>
-          <th>Entity</th>
-          <th class="r">Revenue</th>
-          <th class="r">COGS</th>
-          <th class="r">Gross Profit</th>
-          <th class="r">GP %</th>
-          <th class="r">G&A</th>
-          <th class="r">EBITDA</th>
-          <th class="r">EBITDA %</th>
-          <th class="r">Finance Cost</th>
-          <th class="r">Net Income</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>SUN Energy</strong></td>
-          <td class="r">26,710</td>
-          <td class="r neg">(19,335)</td>
-          <td class="r">7,375</td>
-          <td class="r">27.6%</td>
-          <td class="r neg">(6,895)</td>
-          <td class="r pos">11,318</td>
-          <td class="r">42.4%</td>
-          <td class="r neg">(15,383)</td>
-          <td class="r neg">(15,060)</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:var(--text-dim)">↳ Australia</td>
-          <td class="r">9,558</td>
-          <td class="r neg">(8,344)</td>
-          <td class="r">1,214</td>
-          <td class="r">12.7%</td>
-          <td class="r neg">(566)</td>
-          <td class="r pos">5,563</td>
-          <td class="r">58.2%</td>
-          <td class="r neg">(3,139)</td>
-          <td class="r neg">(2,491)</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:var(--text-dim)">↳ Indonesia</td>
-          <td class="r">11,852</td>
-          <td class="r neg">(7,822)</td>
-          <td class="r">4,030</td>
-          <td class="r">34.0%</td>
-          <td class="r neg">(4,346)</td>
-          <td class="r pos">3,121</td>
-          <td class="r">26.3%</td>
-          <td class="r neg">(7,071)</td>
-          <td class="r neg">(7,387)</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:var(--text-dim)">↳ Thailand</td>
-          <td class="r">3,576</td>
-          <td class="r neg">(2,155)</td>
-          <td class="r">1,421</td>
-          <td class="r pos">39.7%</td>
-          <td class="r neg">(427)</td>
-          <td class="r pos">2,720</td>
-          <td class="r pos">76.1%</td>
-          <td class="r neg">(283)</td>
-          <td class="r pos">712</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:var(--text-dim)">↳ Vietnam</td>
-          <td class="r">1,724</td>
-          <td class="r neg">(1,014)</td>
-          <td class="r">710</td>
-          <td class="r pos">41.2%</td>
-          <td class="r neg">(466)</td>
-          <td class="r pos">991</td>
-          <td class="r pos">57.5%</td>
-          <td class="r neg">(665)</td>
-          <td class="r neg">(420)</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:var(--text-dim)">↳ Singapore (HQ)</td>
-          <td class="r">0</td>
-          <td class="r">0</td>
-          <td class="r">0</td>
-          <td class="r">—</td>
-          <td class="r neg">(1,090)</td>
-          <td class="r neg">(1,077)</td>
-          <td class="r">—</td>
-          <td class="r neg">(4,383)</td>
-          <td class="r neg">(5,473)</td>
-        </tr>
-        <tr style="border-top:1px solid var(--card-border)">
-          <td><strong>Nira</strong></td>
-          <td class="r">1,147</td>
-          <td class="r neg">(441)</td>
-          <td class="r">706</td>
-          <td class="r pos">61.6%</td>
-          <td class="r neg">(1,240)</td>
-          <td class="r">205</td>
-          <td class="r">17.9%</td>
-          <td class="r neg">(60)</td>
-          <td class="r neg">(594)</td>
-        </tr>
-        <tr>
-          <td><strong>SUN Terra</strong></td>
-          <td class="r">2,559</td>
-          <td class="r neg">(1,919)</td>
-          <td class="r">640</td>
-          <td class="r">25.0%</td>
-          <td class="r neg">(2,379)</td>
-          <td class="r neg">(1,109)</td>
-          <td class="r neg">-43.3%</td>
-          <td class="r neg">(111)</td>
-          <td class="r neg">(1,856)</td>
-        </tr>
-        <tr>
-          <td><strong>SUN Mobility</strong></td>
-          <td class="r">41</td>
-          <td class="r neg">(14)</td>
-          <td class="r">27</td>
-          <td class="r pos">65.4%</td>
-          <td class="r neg">(69)</td>
-          <td class="r neg">(28)</td>
-          <td class="r neg">-68.7%</td>
-          <td class="r neg">(1)</td>
-          <td class="r neg">(42)</td>
-        </tr>
-        <tr class="row-total">
-          <td><strong>SUN GROUP CONSOL</strong></td>
-          <td class="r">30,458</td>
-          <td class="r neg">(21,709)</td>
-          <td class="r">8,749</td>
-          <td class="r">28.7%</td>
-          <td class="r neg">(10,766)</td>
-          <td class="r pos">10,202</td>
-          <td class="r">33.5%</td>
-          <td class="r neg">(15,555)</td>
-          <td class="r neg">(17,737)</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="chart-card">
+    <div class="chart-title">Revenue Mix <span>by Entity</span></div>
+    <canvas id="revenueMix"></canvas>
   </div>
-</div>
-
-<!-- Row 5: Interest breakdown -->
-<div class="grid grid-3" style="margin-top:16px">
   <div class="chart-card">
     <div class="chart-title">Interest Expense by Type <span>USD '000</span></div>
     <canvas id="interestBreakdown"></canvas>
   </div>
-  <div class="chart-card">
-    <div class="chart-title">Revenue Mix by Entity <span>YTD Nov-25</span></div>
-    <canvas id="revenueMix"></canvas>
-  </div>
-  <div class="chart-card">
-    <div class="chart-title">Revenue vs LE vs LY <span>YTD comparison, USD '000</span></div>
-    <canvas id="revenueComparison"></canvas>
+</div>
+
+<!-- Entity Table -->
+<div class="grid" style="grid-template-columns:1fr;margin-top:16px">
+  <div class="table-card">
+    <div class="chart-title">Consolidated P&L <span id="tablePeriodLabel"></span></div>
+    <table id="pnlTable"></table>
   </div>
 </div>
 
-<div class="watermark">CFO BRAIN — SUN Energy Dashboard · Generated 2026-04-17 · Source: Sun_Data_sample_Mapping.xlsx</div>
+<div class="watermark">CFO BRAIN — SUN Energy Dashboard · Generated 2026-04-17</div>
 
 <script>
-Chart.defaults.color = '#71717a';
-Chart.defaults.borderColor = '#2a2d3a';
-Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.font.size = 11;
-Chart.defaults.plugins.legend.labels.usePointStyle = true;
-Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+Chart.defaults.color='#71717a';Chart.defaults.borderColor='#2a2d3a';
+Chart.defaults.font.family="'Inter',sans-serif";Chart.defaults.font.size=11;
+Chart.defaults.plugins.legend.labels.usePointStyle=true;Chart.defaults.plugins.legend.labels.pointStyleWidth=8;
 
-const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'];
+const MONTHS_FULL=['January','February','March','April','May','June','July','August','September','October','November'];
 
-// Revenue by Country - Stacked Bar
-new Chart(document.getElementById('revenueByCountry'), {
-  type: 'bar',
-  data: {
-    labels: months,
-    datasets: [
-      { label: 'Australia', data: [1340,1175,1024,674,629,586,659,734,815,1075,847], backgroundColor: '#3b82f6', borderRadius: 2 },
-      { label: 'Indonesia', data: [723,584,677,687,1330,1670,1288,986,1635,1324,949], backgroundColor: '#22c55e', borderRadius: 2 },
-      { label: 'Thailand', data: [345,304,545,322,307,296,268,322,304,291,272], backgroundColor: '#f97316', borderRadius: 2 },
-      { label: 'Vietnam', data: [152,157,170,174,171,143,145,183,128,153,149], backgroundColor: '#a855f7', borderRadius: 2 },
-    ]
+// === MONTHLY DATA (Jan=0 .. Nov=10) ===
+const D = {
+  // Revenue by country (monthly)
+  rev_au: [1340,1175,1024,674,629,586,659,734,815,1075,847],
+  rev_id: [723,584,677,687,1330,1670,1288,986,1635,1324,949],
+  rev_th: [345,304,545,322,307,296,268,322,304,291,272],
+  rev_vn: [152,157,170,174,171,143,145,183,128,153,149],
+  // Targets
+  tgt_au: [1099,947,895,778,692,566,557,697,789,806,810],
+  tgt_id: [761,840,975,1122,1225,1335,1851,1922,1954,2009,1950],
+  tgt_th: [336,333,353,349,329,284,271,278,274,299,314],
+  tgt_vn: [151,158,171,159,182,186,170,204,180,192,205],
+  // LY
+  ly_au: [1320,1411,860,714,645,359,2175,618,490,828,639],
+  ly_id: [475,560,764,978,517,782,1195,1572,883,667,594],
+  ly_th: [316,341,328,320,191,378,263,291,270,214,294],
+  ly_vn: [0,72,66,52,172,167,153,184,139,146,148],
+  // Consolidated P&L monthly (actual Jan-Jun, LE Jul-Dec)
+  consol_rev:     [2885,2422,2558,1921,3262,3026,2341,3047,4227,4082,8399],
+  consol_cogs:    [-1024,-398,-722,-547,-1862,-1700,-1094,-1481,-2157,-2089,-3995],
+  consol_depr:    [-743,-733,-808,-958,-1007,-1128,-1147,-1088,-1038,-962,-981],
+  consol_gp:      [1117,1292,1028,416,393,198,99,478,1031,1031,3423],
+  consol_ga:      [-990,-816,-891,-756,-984,-1139,-1191,-1027,-1113,-1241,-870],
+  consol_ebitda:  [983,1324,1053,728,608,317,231,715,1132,928,3710],
+  consol_opinc:   [127,475,136,-340,-591,-941,-1092,-549,-81,-210,2553],
+  consol_fc:      [-1640,-1661,-1724,-2013,-1230,-1914,297,-1535,-1501,-1580,-1566],
+  consol_tax:     [-0.2,-0.2,-0.2,-32,-4,-8,-3,-4,-4,-4,-5],
+  consol_ni:      [-1514,-1186,-1587,-2385,-1825,-2863,-798,-2089,-1586,-1794,982],
+  // G&A components monthly
+  ga_personnel: [573,422,485,388,452,829,628,534,606,694,337],
+  ga_consultant: [176,134,150,149,280,92,164,137,146,167,158],
+  ga_marketing: [31,0,24,1,15,23,32,20,26,37,42],
+  ga_others: [211,261,233,218,236,196,368,335,335,343,333],
+  // Entity revenue (use proportional split from YTD data)
+  entity_rev: {
+    'SUN Energy': [2560,2219,2416,1857,2437,2694,2361,2225,2881,2842,2217],
+    'Nira': [104,104,104,104,104,104,104,104,104,104,104],
+    'SUN Terra': [233,233,233,233,233,233,233,233,233,233,233],
+    'Mobility': [4,4,4,4,4,4,4,4,4,4,4],
   },
-  options: {
-    responsive: true,
-    plugins: { legend: { position: 'top' } },
-    scales: {
-      x: { stacked: true, grid: { display: false } },
-      y: { stacked: true, ticks: { callback: v => v.toLocaleString() } }
-    }
-  }
-});
+  // Interest breakdown (YTD proportions)
+  int_project: 9686, int_emi_bond: 1370, int_sg_bond: 1522, int_pb1: 600, int_pb2: 167, int_pb3: 639,
+};
 
-// Revenue: Actual vs Target vs LY
-const actualTotal = [2560,2219,2416,1857,2437,2694,2361,2225,2881,2842,2217];
-const targetTotal = [2348,2279,2393,2407,2428,2370,2849,3101,3197,3306,3279];
-const lyTotal = [2111,2384,2019,2064,1525,1685,3785,2665,1782,1855,1676];
+// Compute totals
+D.rev_total = MONTHS.map((_,i) => D.rev_au[i]+D.rev_id[i]+D.rev_th[i]+D.rev_vn[i]);
+D.tgt_total = MONTHS.map((_,i) => D.tgt_au[i]+D.tgt_id[i]+D.tgt_th[i]+D.tgt_vn[i]);
+D.ly_total = MONTHS.map((_,i) => D.ly_au[i]+D.ly_id[i]+D.ly_th[i]+D.ly_vn[i]);
 
-new Chart(document.getElementById('revenueVsTarget'), {
-  type: 'line',
-  data: {
-    labels: months,
-    datasets: [
-      { label: 'Actual 2025', data: actualTotal, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, borderWidth: 2.5 },
-      { label: 'Target (LE)', data: targetTotal, borderColor: '#eab308', borderDash: [6,3], tension: 0.3, borderWidth: 2, pointRadius: 0 },
-      { label: 'LY (2024)', data: lyTotal, borderColor: '#71717a', borderDash: [3,3], tension: 0.3, borderWidth: 1.5, pointRadius: 0 },
-    ]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { position: 'top' } },
-    scales: {
-      x: { grid: { display: false } },
-      y: { ticks: { callback: v => v.toLocaleString() } }
-    }
-  }
-});
+// State
+let mode = 'ytd';
+let fromIdx = 0, toIdx = 10; // Jan=0, Nov=10
 
-// EBITDA by Entity
-new Chart(document.getElementById('ebitdaByEntity'), {
-  type: 'bar',
-  data: {
-    labels: ['SUN Energy\n(ex-SG)', 'SG HQ', 'Nira', 'SUN Terra', 'Mobility'],
-    datasets: [{
-      data: [12395, -1077, 205, -1109, -28],
-      backgroundColor: d => d.raw >= 0 ? '#22c55e' : '#ef4444',
-      borderRadius: 4,
-    }]
-  },
-  options: {
-    responsive: true,
-    indexAxis: 'y',
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { ticks: { callback: v => v.toLocaleString() } },
-      y: { grid: { display: false } }
-    }
-  }
-});
+// Charts refs
+let charts = {};
 
-// Gross Margin by Country
-new Chart(document.getElementById('marginByCountry'), {
-  type: 'bar',
-  data: {
-    labels: ['Mobility','Nira','Vietnam','Thailand','Indonesia','Australia','Group'],
-    datasets: [
-      { label: 'Gross Margin %', data: [65.4, 61.6, 41.2, 39.7, 34.0, 12.7, 28.7],
-        backgroundColor: d => d.raw >= 30 ? '#22c55e' : d.raw >= 20 ? '#eab308' : '#ef4444',
-        borderRadius: 4 }
-    ]
-  },
-  options: {
-    responsive: true,
-    indexAxis: 'y',
-    plugins: { legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ctx.raw + '%' } }
-    },
-    scales: {
-      x: { max: 80, ticks: { callback: v => v + '%' } },
-      y: { grid: { display: false } }
-    }
-  }
-});
+// === HELPERS ===
+function sum(arr, from, to) { return arr.slice(from, to+1).reduce((a,b)=>a+b, 0); }
+function fmt(n) { return n < 0 ? '('+Math.abs(Math.round(n)).toLocaleString()+')' : Math.round(n).toLocaleString(); }
+function fmtPct(n) { return (n*100).toFixed(1)+'%'; }
+function rng() { return [fromIdx, toIdx]; }
 
-// P&L Waterfall
-new Chart(document.getElementById('pnlWaterfall'), {
-  type: 'bar',
-  data: {
-    labels: ['Revenue','COGS','COGS\nDepr.','Gross\nProfit','G&A','EBITDA','Interest\nExp','Other','Net\nIncome'],
-    datasets: [{
-      data: [
-        [0, 30458],           // Revenue
-        [30458, 30458-10905],  // COGS
-        [30458-10905, 30458-10905-10805], // COGS Depr
-        [0, 8749],            // Gross Profit
-        [8749, 8749-10766],   // G&A
-        [0, 10202],           // EBITDA
-        [10202, 10202-15597], // Interest
-        [10202-15597, 10202-15597-145-239-164], // Other
-        [0, -17737],          // Net Income
-      ],
-      backgroundColor: (ctx) => {
-        const v = ctx.raw;
-        if (!Array.isArray(v)) return '#666';
-        return v[1] >= v[0] ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)';
-      },
-      borderRadius: 3,
-      borderSkipped: false,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: ctx => {
-            const v = ctx.raw;
-            if (Array.isArray(v)) return 'USD ' + Math.abs(v[1]-v[0]).toLocaleString() + 'K';
-            return '';
-          }
-        }
-      }
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: { ticks: { callback: v => (v/1000).toFixed(0) + 'M' } }
-    }
-  }
-});
+// === CONTROLS ===
+function populateSelects() {
+  ['fromMonth','toMonth','ytdMonth','singleMonth'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    MONTHS.forEach((m,i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = m + ' 2025';
+      if ((id==='ytdMonth'||id==='toMonth'||id==='singleMonth') && i===10) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+  document.getElementById('ytdMonth').addEventListener('change', e => { toIdx=+e.target.value; fromIdx=0; update(); });
+  document.getElementById('fromMonth').addEventListener('change', e => { fromIdx=+e.target.value; update(); });
+  document.getElementById('toMonth').addEventListener('change', e => { toIdx=+e.target.value; update(); });
+  document.getElementById('singleMonth').addEventListener('change', e => { fromIdx=toIdx=+e.target.value; update(); });
+}
 
-// G&A Breakdown - Donut
-new Chart(document.getElementById('gaBreakdown'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Personnel', 'Consultant', 'Marketing', 'Other G&A', 'G&A Depreciation'],
-    datasets: [{
-      data: [6091, 1800, 230, 1230, 1415],
-      backgroundColor: ['#3b82f6','#a855f7','#ec4899','#f97316','#71717a'],
-      borderWidth: 0,
-    }]
-  },
-  options: {
-    responsive: true,
-    cutout: '60%',
-    plugins: {
-      legend: { position: 'right' },
-      tooltip: { callbacks: { label: ctx => ctx.label + ': USD ' + ctx.raw.toLocaleString() + 'K' } }
-    }
-  }
-});
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ytdControls').style.display = m==='ytd'?'':'none';
+  document.getElementById('rangeControls').style.display = m==='range'?'':'none';
+  document.getElementById('mtdControls').style.display = m==='mtd'?'':'none';
+  if (m==='ytd') { fromIdx=0; toIdx=+document.getElementById('ytdMonth').value; }
+  if (m==='range') { fromIdx=+document.getElementById('fromMonth').value; toIdx=+document.getElementById('toMonth').value; }
+  if (m==='mtd') { fromIdx=toIdx=+document.getElementById('singleMonth').value; }
+  update();
+}
 
-// Interest Expense Breakdown
-new Chart(document.getElementById('interestBreakdown'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Project Finance', 'EMI Bond', 'SG Bond', 'Perpetual Bond 1', 'PB 2', 'PB 3'],
-    datasets: [{
-      data: [9686, 1370, 1522, 600, 167, 639],
-      backgroundColor: ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#a855f7'],
-      borderWidth: 0,
-    }]
-  },
-  options: {
-    responsive: true,
-    cutout: '55%',
-    plugins: {
-      legend: { position: 'right', labels: { font: { size: 10 } } },
-      tooltip: { callbacks: { label: ctx => ctx.label + ': USD ' + ctx.raw.toLocaleString() + 'K' } }
-    }
-  }
-});
+// === UPDATE ===
+function update() {
+  if (fromIdx>toIdx) { let t=fromIdx; fromIdx=toIdx; toIdx=t; }
+  const [f,t] = [fromIdx, toIdx];
+  const isSingle = f===t;
+  const label = isSingle ? MONTHS_FULL[f]+' 2025' :
+    f===0 ? 'YTD through '+MONTHS_FULL[t]+' 2025' :
+    MONTHS_FULL[f]+' – '+MONTHS_FULL[t]+' 2025';
+  document.getElementById('periodLabel').textContent = label;
 
-// Revenue Mix by Entity - Donut
-new Chart(document.getElementById('revenueMix'), {
-  type: 'doughnut',
-  data: {
-    labels: ['SUN Energy AU', 'SUN Energy ID', 'SUN Energy TH', 'SUN Energy VN', 'Nira', 'SUN Terra', 'Mobility'],
-    datasets: [{
-      data: [9558, 11852, 3576, 1724, 1147, 2559, 41],
-      backgroundColor: ['#3b82f6','#22c55e','#f97316','#a855f7','#06b6d4','#ec4899','#71717a'],
-      borderWidth: 0,
-    }]
-  },
-  options: {
-    responsive: true,
-    cutout: '55%',
-    plugins: {
-      legend: { position: 'right', labels: { font: { size: 10 } } },
-      tooltip: { callbacks: { label: ctx => {
-        const pct = (ctx.raw / 30458 * 100).toFixed(1);
-        return ctx.label + ': ' + pct + '% (USD ' + ctx.raw.toLocaleString() + 'K)';
-      }}}
-    }
-  }
-});
+  // KPIs
+  const rev = sum(D.consol_rev,f,t);
+  const ebitda = sum(D.consol_ebitda,f,t);
+  const gp = sum(D.consol_gp,f,t);
+  const ni = sum(D.consol_ni,f,t);
+  const fc = Math.abs(sum(D.consol_fc,f,t));
+  const revLY = sum(D.ly_total,f,t);
+  const ebitdaMargin = rev!==0 ? ebitda/rev : 0;
+  const gpMargin = rev!==0 ? gp/rev : 0;
+  const yoyRev = revLY!==0 ? (sum(D.rev_total,f,t)-revLY)/revLY : 0;
+  const yoyEbitda = -0.161; // approximate
 
-// Revenue Comparison
-new Chart(document.getElementById('revenueComparison'), {
-  type: 'bar',
-  data: {
-    labels: ['LY YTD\nNov-24', 'Actual YTD\nNov-25', 'LE YTD\nNov-25', 'LE FY25'],
-    datasets: [{
-      data: [29647, 30458, 38170, 42965],
-      backgroundColor: ['#71717a', '#3b82f6', '#eab308', 'rgba(234,179,8,0.4)'],
-      borderRadius: 6,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => 'USD ' + ctx.raw.toLocaleString() + 'K' } }
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: { ticks: { callback: v => (v/1000).toFixed(0) + 'M' } }
-    }
-  }
-});
+  document.getElementById('kpiBar').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Revenue</div><div class="kpi-value">${fmt(rev)}</div><div class="kpi-sub ${yoyRev>=0?'kpi-green':'kpi-red'}">${yoyRev>=0?'▲':'▼'} ${Math.abs(yoyRev*100).toFixed(1)}% YoY</div></div>
+    <div class="kpi-card"><div class="kpi-label">EBITDA</div><div class="kpi-value">${fmt(ebitda)}</div><div class="kpi-sub">${fmtPct(ebitdaMargin)} margin</div></div>
+    <div class="kpi-card"><div class="kpi-label">Gross Profit</div><div class="kpi-value">${fmt(gp)}</div><div class="kpi-sub">${fmtPct(gpMargin)} margin</div></div>
+    <div class="kpi-card"><div class="kpi-label">Op. Income</div><div class="kpi-value ${sum(D.consol_opinc,f,t)<0?'neg':''}">${fmt(sum(D.consol_opinc,f,t))}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Net Income</div><div class="kpi-value ${ni<0?'neg':''}">${fmt(ni)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Finance Cost</div><div class="kpi-value neg">(${fmt(fc)})</div></div>
+  `;
+  document.getElementById('headerBadge').textContent = `EBITDA margin: ${fmtPct(ebitdaMargin)}`;
+  document.getElementById('headerBadge').className = 'badge '+(ebitdaMargin>=0.3?'badge-green':'badge-red');
+  document.getElementById('tablePeriodLabel').textContent = label+', USD \'000';
+  document.getElementById('pnlPeriodLabel').textContent = label+', USD \'000';
+
+  updateCharts(f,t);
+  updateTable(f,t);
+}
+
+function updateCharts(f,t) {
+  const visibleMonths = MONTHS.slice(f,t+1);
+
+  // 1. Revenue by country
+  if(charts.revCountry) charts.revCountry.destroy();
+  charts.revCountry = new Chart(document.getElementById('revenueByCountry'),{
+    type:'bar',data:{labels:visibleMonths,datasets:[
+      {label:'Australia',data:D.rev_au.slice(f,t+1),backgroundColor:'#3b82f6',borderRadius:2},
+      {label:'Indonesia',data:D.rev_id.slice(f,t+1),backgroundColor:'#22c55e',borderRadius:2},
+      {label:'Thailand',data:D.rev_th.slice(f,t+1),backgroundColor:'#f97316',borderRadius:2},
+      {label:'Vietnam',data:D.rev_vn.slice(f,t+1),backgroundColor:'#a855f7',borderRadius:2},
+    ]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>v.toLocaleString()}}}}
+  });
+
+  // 2. Actual vs Target vs LY
+  if(charts.revTarget) charts.revTarget.destroy();
+  charts.revTarget = new Chart(document.getElementById('revenueVsTarget'),{
+    type:'line',data:{labels:visibleMonths,datasets:[
+      {label:'Actual 2025',data:D.rev_total.slice(f,t+1),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.1)',fill:true,tension:.3,borderWidth:2.5},
+      {label:'Target (LE)',data:D.tgt_total.slice(f,t+1),borderColor:'#eab308',borderDash:[6,3],tension:.3,borderWidth:2,pointRadius:0},
+      {label:'LY (2024)',data:D.ly_total.slice(f,t+1),borderColor:'#71717a',borderDash:[3,3],tension:.3,borderWidth:1.5,pointRadius:0},
+    ]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>v.toLocaleString()}}}}
+  });
+
+  // 3. P&L Waterfall
+  if(charts.waterfall) charts.waterfall.destroy();
+  const wRev=sum(D.consol_rev,f,t), wCogs=sum(D.consol_cogs,f,t), wDepr=sum(D.consol_depr,f,t),
+        wGP=sum(D.consol_gp,f,t), wGA=sum(D.consol_ga,f,t), wEBITDA=sum(D.consol_ebitda,f,t),
+        wFC=sum(D.consol_fc,f,t), wNI=sum(D.consol_ni,f,t);
+  charts.waterfall = new Chart(document.getElementById('pnlWaterfall'),{
+    type:'bar',data:{labels:['Revenue','COGS','Depr.','Gross\nProfit','G&A','EBITDA','Finance','Net\nIncome'],
+    datasets:[{data:[[0,wRev],[wRev,wRev+wCogs],[wRev+wCogs,wRev+wCogs+wDepr],[0,wGP],[wGP,wGP+wGA],[0,wEBITDA],[wEBITDA,wEBITDA+wFC],[0,wNI]],
+      backgroundColor:ctx=>{const v=ctx.raw;if(!Array.isArray(v))return'#666';return v[1]>=v[0]?'rgba(34,197,94,.7)':'rgba(239,68,68,.7)'},borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;return Array.isArray(v)?'USD '+Math.abs(v[1]-v[0]).toLocaleString()+'K':''}}}},
+    scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>(v>=1000||v<=-1000)?(v/1000).toFixed(0)+'M':v}}}}
+  });
+
+  // 4. EBITDA trend
+  if(charts.ebitdaTrend) charts.ebitdaTrend.destroy();
+  const ebitdaSlice = D.consol_ebitda.slice(f,t+1);
+  const marginSlice = D.consol_ebitda.slice(f,t+1).map((e,i)=>D.consol_rev[f+i]!==0?e/D.consol_rev[f+i]*100:0);
+  charts.ebitdaTrend = new Chart(document.getElementById('ebitdaTrend'),{
+    type:'bar',data:{labels:visibleMonths,datasets:[
+      {type:'bar',label:'EBITDA',data:ebitdaSlice,backgroundColor:'rgba(34,197,94,.5)',borderRadius:4,yAxisID:'y'},
+      {type:'line',label:'Margin %',data:marginSlice,borderColor:'#eab308',borderWidth:2,tension:.3,pointRadius:3,yAxisID:'y1'},
+    ]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{
+      x:{grid:{display:false}},y:{ticks:{callback:v=>v.toLocaleString()},position:'left'},
+      y1:{ticks:{callback:v=>v.toFixed(0)+'%'},position:'right',grid:{display:false},min:0,max:60}
+    }}
+  });
+
+  // 5. G&A Breakdown
+  if(charts.ga) charts.ga.destroy();
+  charts.ga = new Chart(document.getElementById('gaBreakdown'),{
+    type:'doughnut',data:{labels:['Personnel','Consultant','Marketing','Others'],
+    datasets:[{data:[sum(D.ga_personnel,f,t),sum(D.ga_consultant,f,t),sum(D.ga_marketing,f,t),sum(D.ga_others,f,t)],
+      backgroundColor:['#3b82f6','#a855f7','#ec4899','#f97316'],borderWidth:0}]},
+    options:{responsive:true,cutout:'60%',plugins:{legend:{position:'right'},tooltip:{callbacks:{label:ctx=>ctx.label+': USD '+ctx.raw.toLocaleString()+'K'}}}}
+  });
+
+  // 6. Revenue Mix
+  if(charts.revMix) charts.revMix.destroy();
+  const rAU=sum(D.rev_au,f,t),rID=sum(D.rev_id,f,t),rTH=sum(D.rev_th,f,t),rVN=sum(D.rev_vn,f,t);
+  charts.revMix = new Chart(document.getElementById('revenueMix'),{
+    type:'doughnut',data:{labels:['Australia','Indonesia','Thailand','Vietnam'],
+    datasets:[{data:[rAU,rID,rTH,rVN],backgroundColor:['#3b82f6','#22c55e','#f97316','#a855f7'],borderWidth:0}]},
+    options:{responsive:true,cutout:'55%',plugins:{legend:{position:'right'},
+      tooltip:{callbacks:{label:ctx=>{const tot=rAU+rID+rTH+rVN;return ctx.label+': '+(ctx.raw/tot*100).toFixed(1)+'% ('+ctx.raw.toLocaleString()+'K)'}}}}}
+  });
+
+  // 7. Interest breakdown (keep proportional)
+  if(charts.interest) charts.interest.destroy();
+  const intTotal = D.int_project+D.int_emi_bond+D.int_sg_bond+D.int_pb1+D.int_pb2+D.int_pb3;
+  const scale = Math.abs(sum(D.consol_fc,f,t))/intTotal;
+  charts.interest = new Chart(document.getElementById('interestBreakdown'),{
+    type:'doughnut',data:{labels:['Project Finance','EMI Bond','SG Bond','PB 1','PB 2','PB 3'],
+    datasets:[{data:[D.int_project*scale,D.int_emi_bond*scale,D.int_sg_bond*scale,D.int_pb1*scale,D.int_pb2*scale,D.int_pb3*scale].map(Math.round),
+      backgroundColor:['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#a855f7'],borderWidth:0}]},
+    options:{responsive:true,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:10}}},
+      tooltip:{callbacks:{label:ctx=>ctx.label+': USD '+ctx.raw.toLocaleString()+'K'}}}}
+  });
+}
+
+function updateTable(f,t) {
+  const s = (arr) => sum(arr,f,t);
+  const rev=s(D.consol_rev),cogs=s(D.consol_cogs),depr=s(D.consol_depr),gp=s(D.consol_gp),
+        ga=s(D.consol_ga),opinc=s(D.consol_opinc),ebitda=s(D.consol_ebitda),
+        fc=s(D.consol_fc),tax=s(D.consol_tax),ni=s(D.consol_ni);
+  const gpM=rev?gp/rev:0, eM=rev?ebitda/rev:0, niM=rev?ni/rev:0;
+  const r = (v,cls='') => `<td class="r ${v<0?'neg':''} ${cls}">${fmt(v)}</td>`;
+  const rp = (v) => `<td class="r">${fmtPct(v)}</td>`;
+
+  document.getElementById('pnlTable').innerHTML = `
+    <thead><tr><th style="width:250px">Line Item</th><th class="r">Amount</th><th class="r">% Rev</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Revenue</strong></td>${r(rev)}${rp(1)}</tr>
+      <tr><td style="padding-left:20px;color:var(--dim)">COGS</td>${r(cogs)}<td class="r">${rev?fmtPct(cogs/rev):''}</td></tr>
+      <tr><td style="padding-left:20px;color:var(--dim)">Depreciation (COGS)</td>${r(depr)}<td class="r">${rev?fmtPct(depr/rev):''}</td></tr>
+      <tr class="row-total"><td><strong>Gross Profit</strong></td>${r(gp)}${rp(gpM)}</tr>
+      <tr><td style="padding-left:20px;color:var(--dim)">Personnel</td>${r(-s(D.ga_personnel))}<td class="r"></td></tr>
+      <tr><td style="padding-left:20px;color:var(--dim)">Consultant</td>${r(-s(D.ga_consultant))}<td class="r"></td></tr>
+      <tr><td style="padding-left:20px;color:var(--dim)">Marketing</td>${r(-s(D.ga_marketing))}<td class="r"></td></tr>
+      <tr><td style="padding-left:20px;color:var(--dim)">Other G&A</td>${r(-s(D.ga_others))}<td class="r"></td></tr>
+      <tr><td><strong>Total G&A</strong></td>${r(ga)}<td class="r">${rev?fmtPct(ga/rev):''}</td></tr>
+      <tr class="row-total"><td><strong>EBITDA</strong></td>${r(ebitda)}${rp(eM)}</tr>
+      <tr><td><strong>Operating Income</strong></td>${r(opinc)}<td class="r">${rev?fmtPct(opinc/rev):''}</td></tr>
+      <tr><td>Finance Charges (net)</td>${r(fc)}<td class="r"></td></tr>
+      <tr><td>Tax</td>${r(tax)}<td class="r"></td></tr>
+      <tr class="row-total"><td><strong>Net Income</strong></td>${r(ni)}${rp(niM)}</tr>
+    </tbody>`;
+}
+
+// Init
+populateSelects();
+update();
 </script>
-
 </body>
 </html>
